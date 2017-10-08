@@ -1,0 +1,2 @@
+class JwtQrcode < ApplicationRecord
+end
