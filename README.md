@@ -1,7 +1,6 @@
-# README
+# JWT-QR code sample
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This repository contains the sample sources to process JWT through QR Code.
 
 Things you may want to cover:
 
