@@ -5,14 +5,15 @@ class JwtQrcodeGoogleChartsController < ApplicationController
 
   def show
     data = "some data used by someone who scanned a QR Code."
-    data_digest_with_random_hex = Digest::SHA256.hexdigest(data) + SecureRandom.hex(16)
+    data_digest_with_random_hex = Digest::SHA256.hexdigest(data + SecureRandom.hex(16))
     now = Time.now.to_i
 
     jwt_data = {
       iss: 'Jwt-Qrcode-Sample',
       iat: now,
       exp: now + 300,
-      data: data_digest_with_random_hex
+      data: data_digest_with_random_hex,
+      user_id: 'test_user'
     }
 
     private_key = OpenSSL::PKey::RSA.new(File.read('ssh/id_rsa_jwt_qrcode_sample'))
@@ -24,8 +25,9 @@ class JwtQrcodeGoogleChartsController < ApplicationController
     jwt = params[:jwt]
     public_key = OpenSSL::PKey::RSA.new(File.read('ssh/id_rsa_jwt_qrcode_sample.pub'))
 
+    claims = nil
     begin
-      JWT.decode jwt, public_key, true, { algorithm: 'RS256' }
+      claims = JWT.decode jwt, public_key, true, { algorithm: 'RS256' }
     rescue JWT::ExpiredSignature => err
       render json: { status: 'error', detail: err.to_s } and return
     rescue JWT::VerificationError => err
@@ -35,13 +37,17 @@ class JwtQrcodeGoogleChartsController < ApplicationController
     jwt_qrcode = JwtQrcode.find_by_jwt(jwt)
 
     if jwt_qrcode.user_id
-      render json: { status: 'error', detail: 'This QR Code has already been scanned.' } and return
-    end
+      render json: { status: 'error', detail: 'This QR Code has already been scanned.' }
+    elsif claims[0]['user_id'] != params[:user_id]
+      render json: { status: 'error', detail: 'Invalid user scanned the QR code.' }
+    elsif jwt_qrcode.update(user_id: params[:user_id])
+      data = jwt_qrcode.data
 
-    if jwt_qrcode.update(user_id: params[:user_id])
+      # Use data as you like.
+      
       render json: { status: 'ok' }
     else
-      render json: { status: 'error', detail: 'user_id updating error.' }
+      render json: { status: 'error', detail: 'Record updating error.' }
     end
   end
 end
