@@ -64,7 +64,11 @@ To make use of the JWT's features as below.
 
   ![image](/images/qrcode_rqrcode.png)
 
-  And a record is inserted into jwt_qrcode table.
+  A history record will be inserted into the 'jwt_qrcode' table as below.
+
+| id | jwt | data | user_id |
+|:-----------|------------:|------------:|------------:|
+| 1       | eyJhbGciOiJSUzI1NiJ9 ... qEnpJcU3IueC7hjuM8FyCCwZuCBpsHu8Q | some data you want to process ... |     |
 
 ## Processing QR code
   Send a HTTP request to process a jwt embedded in a QR code from your mobile application after scanning it.
@@ -92,6 +96,12 @@ To make use of the JWT's features as below.
   ```
   {"status":"ok"}
   ```
+
+  And then, the value of parameter, 'test_user', has been set into the user_id column as below.
+
+| id | jwt | data | user_id |
+|:-----------|------------:|------------:|------------:|
+| 1       | eyJhbGciOiJSUzI1NiJ9 ... qEnpJcU3IueC7hjuM8FyCCwZuCBpsHu8Q | some data you want to process ... | test_user |  
 
 - If the JWT's signature is expired, an error response will be returned.
   ```
